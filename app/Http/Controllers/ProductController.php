@@ -2,16 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Models\Product;
 use Faker\Provider\Image;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Redirect;
-use App\Http\Requests\StoreProductRequest;
 
+use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
-use Intervention\Image\ImageServiceProvider;
+use Illuminate\Support\Facades\Notification;
+
+use App\Notifications\NewProductNotification;
 
 
 class ProductController extends Controller
@@ -57,6 +60,9 @@ class ProductController extends Controller
       
     
         $product->save();
+       
+        $users = User::all();
+        Notification::send($users, new NewProductNotification($product));
     
         return response()->json([
             'message' => 'Product created successfully',
@@ -113,6 +119,9 @@ class ProductController extends Controller
         }
 
         $product->save();
+        $users = User::all();
+        Notification::send($users, new NewProductNotification($product));
+    
         return response()->json([
             'message' => 'Product updated successfully',
             'product' => $product
